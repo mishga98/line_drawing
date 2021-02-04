@@ -29,14 +29,7 @@ class DrawAlgos(QWidget):
                     (20, height-20),        # we want to draw by setting up the
                     (width-20, height-20),  # tuple of coordinates (tuples). Here it's triangle.
                  )
-        points = (
-                    (20, 20),
-                    (width - 20, 20),
-                    (width - 20, height - 20),
-                    (20, height-20),
 
-
-                 )
 
         for i in range(len(points)):
             dx = points[(i + 1) % len(points)][0] - points[i][0]       # Calculate dx, dy and watch out of being
@@ -58,7 +51,7 @@ class DrawAlgos(QWidget):
                 direction = 0
             (x1, y1) = points[i]
             (x2, y2) = points[(i + 1) % len(points)]
-            while(sqrt((x1-x2)**2 + (y1-y2)**2) >= pixel):
+            while(True):
 
                 painter.drawPoint(round(x1), round(y1))
                 increment = 1
@@ -68,11 +61,9 @@ class DrawAlgos(QWidget):
                 else:
                         y1 += increment*pixel*isNegative(dy)
                         x1 += d*pixel*isNegative(dx)
-                print('direction', direction)
-                print('x1:', x1, 'x2:', x2)
-                print('y1:', y1, 'y2:', y2)
-                print('dx:', dx, 'dy:', dy)
-                #print('d', d)
+                if(sqrt((x1-x2)**2 + (y1-y2)**2) < pixel):      # here we add one more pixel to the tail
+                    painter.drawPoint(round(x1), round(y1))     # so the line is not interrupted
+                    break
 
 
 
