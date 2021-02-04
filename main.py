@@ -1,11 +1,12 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPainter, QPen
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QCheckBox
 from math import sqrt
 import time
 
 alg_flag = 0                                # Algorithm of drawing lines. 0 - Async DDA; 1 - Bresenham's line algorithm
 pixel = 20
+offset = 100
 
 
 def isNegative(num):
@@ -16,6 +17,47 @@ def isNegative(num):
 
 class DrawAlgos(QWidget):
 
+    def __init__(self):
+        super().__init__()
+        self.shape = 'triangle'
+        self.cb_list = []
+        self.initUI()
+
+    def initUI(self):
+
+
+        cb1 = QCheckBox('triangle', self)
+        cb1.move(20, 20)
+        cb1.toggle()
+        cb1.stateChanged.connect(self.changeShape)
+        self.cb_list.append(cb1)
+
+        cb2 = QCheckBox('square', self)
+        cb2.move(20, 40)
+        cb2.stateChanged.connect(self.changeShape)
+        self.cb_list.append(cb2)
+
+        cb3 = QCheckBox('hexagon', self)
+        cb3.move(20, 60)
+        cb3.stateChanged.connect(self.changeShape)
+        self.cb_list.append(cb3)
+
+
+        self.setGeometry(300, 300, 600, 600)
+        self.setWindowTitle('QCheckBox')
+        self.show()
+
+    def changeShape(self, state):
+        if state == Qt.Checked:
+            for cb in self.cb_list:
+                if(cb != self.sender()):
+                    cb.setChecked(False)
+                else:
+                    cb.setChecked(True)
+            self.shape = self.sender().text()
+            self.update()
+
+
     def paintEvent(self, event):            # Overriding this method allows to carry redrawing while resizing
         width = self.size().width()
         height = self.size().height()
@@ -24,13 +66,32 @@ class DrawAlgos(QWidget):
         pen.setWidth(pixel)
         painter.setPen(pen)
 
-        points = (
-                    (width//2, 20),         # We can choose what kind of figure
-                    (20, height-20),        # we want to draw by setting up the
-                    (width-20, height-20),  # tuple of coordinates (tuples). Here it's triangle.
-                 )
+        shapes = {
+            'triangle':
+                    (
+                        (width//2, offset),         # We can choose what kind of figure
+                        (offset, height-offset),        # we want to draw by setting up the
+                        (width-offset, height-offset),  # tuple of coordinates (tuples). Here it's triangle.
+                    ),
+            'square':
+                    (
+                        (offset, offset),
+                        (width-offset, offset),
+                        (width-offset, height-offset),
+                        (offset, height-offset),
+                    ),
+            'hexagon':
+                (
+                    (20, 20),
+                    (width - 20, 20),
+                    (20, height - 20),
+                    (width - 20, height - 20),
 
+                )
 
+        }
+
+        points = shapes[self.shape]
         for i in range(len(points)):
             dx = points[(i + 1) % len(points)][0] - points[i][0]       # Calculate dx, dy and watch out of being
             dy = points[(i + 1) % len(points)][1] - points[i][1]        # out of range!
@@ -64,6 +125,8 @@ class DrawAlgos(QWidget):
                 if(sqrt((x1-x2)**2 + (y1-y2)**2) < pixel):      # here we add one more pixel to the tail
                     painter.drawPoint(round(x1), round(y1))     # so the line is not interrupted
                     break
+
+
 
 
 
