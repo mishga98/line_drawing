@@ -185,11 +185,11 @@ class DrawAlgos(QWidget):
                     delta_x *= -1
                 d = 0
                 if delta_y >= delta_x:
-                    t = 2 * delta_x
-                    delta = 2 * delta_y
+                    t = delta_x << 1
+                    delta = delta_y << 1
                 else:
-                    t = 2 * delta_y
-                    delta = 2 * delta_x
+                    t = delta_y << 1
+                    delta = delta_x << 1
                 if delta_y >= delta_x:
                     while abs(ay-by) > pixel:
                         painter.drawPoint(round(ax), round(ay))
