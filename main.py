@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QApplication, QWidget, QCheckBox
 from math import sqrt
 import time
 
-pixel = 20
-offset = 100
+pixel = 20      # default brush size
+offset = 100    # margin from sides of window
 
 
 def isNegative(num):
@@ -61,7 +61,7 @@ class DrawAlgos(QWidget):
     def changeShape(self, state):
         if state == Qt.Checked:
             for cb in self.cb_shapes_list:
-                if (cb != self.sender()):
+                if cb != self.sender():
                     cb.setChecked(False)
                 else:
                     cb.setChecked(True)
@@ -71,11 +71,11 @@ class DrawAlgos(QWidget):
     def changeAlg(self, state):
         if state == Qt.Checked:
             for cb in self.cb_algs_list:
-                if (cb != self.sender()):
+                if cb != self.sender():
                     cb.setChecked(False)
                 else:
                     cb.setChecked(True)
-            if (self.sender().text() == "ADDA"):
+            if self.sender().text() == "ADDA":
                 self.alg_flag = 0
             else:
                 self.alg_flag = 1
@@ -100,10 +100,14 @@ class DrawAlgos(QWidget):
                 ),
             'square':
                 (
-                    (offset, offset),
+                    (offset, offset, Qt.black, 20),
                     (width - offset, offset),
                     (width - offset, height - offset),
                     (offset, height - offset),
+                    (offset, offset,),
+                    (width - offset, offset, Qt.blue, 10),
+                    (offset, height - offset, Qt.black, 10),
+                    (width - offset, height - offset, Qt.blue, 10),
                 ),
             'octagon':
                 (
@@ -130,13 +134,13 @@ class DrawAlgos(QWidget):
 
                 direction = 0  # Direction flag: 0 is y and 1 is x
                 d = 0
-                if (not dx):
+                if not dx:
                     d = 0
                     direction = 0
-                if (not dy):
+                if not dy:
                     d = 0
                     direction = 1
-                elif (abs(dx) >= abs(dy)):
+                elif abs(dx) >= abs(dy):
                     d = abs(dy / dx)
                     direction = 1
                 else:
@@ -144,22 +148,22 @@ class DrawAlgos(QWidget):
                     direction = 0
                 (x1, y1, *meta) = points[i]                     # Python's unpacking goes bruh
                 (x2, y2, *_) = points[(i + 1) % len(points)]    # really useful to handle meta-data
-                if(meta):
+                if meta:
                     pen = QPen(meta[0])
                     pixel = meta[1]
                     pen.setWidth(pixel)
                     painter.setPen(pen)
 
-                while (True):
+                while True:
                     painter.drawPoint(round(x1), round(y1))
                     increment = 1
-                    if (direction):
+                    if direction:
                         x1 += increment * pixel * isNegative(dx)  # isNegative() result helps to carry direction
                         y1 += d * pixel * isNegative(dy)
                     else:
                         y1 += increment * pixel * isNegative(dy)
                         x1 += d * pixel * isNegative(dx)
-                    if (sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) < pixel):  # here we add one more pixel to the tail
+                    if sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) < pixel:    # here we add one more pixel to the tail
                         painter.drawPoint(round(x1), round(y1))          # so the line is not interrupted
                         break
         # >--------------------- ADDA end ----------------------------------------------------------------------<
@@ -170,14 +174,14 @@ class DrawAlgos(QWidget):
                 (_, _, *meta) = points[i]
                 [(ax, ay, *_), (bx, by, *_)] = sorted([points[(i + 1) % len(points)], points[i]], key=lambda a: a[1])
 
-                if (meta):
+                if meta:
                     pen = QPen(meta[0])
                     pixel = meta[1]
                     pen.setWidth(pixel)
                     painter.setPen(pen)
 
-                delta_x = bx - ax
-                delta_y = by - ay
+                delta_x = round(bx - ax)
+                delta_y = round(by - ay)
                 if delta_x >= 0:
                     dx = 1
                 else:
