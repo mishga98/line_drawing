@@ -82,6 +82,7 @@ class DrawAlgos(QWidget):
             self.update()
 
     def paintEvent(self, event):  # Overriding this method allows to carry redrawing while resizing
+        global pixel
         width = self.size().width()
         height = self.size().height()
         painter = QPainter(self)
@@ -92,9 +93,10 @@ class DrawAlgos(QWidget):
         shapes = {
             'triangle':
                 (
-                    (width // 2, offset),  # We can choose what kind of figure
-                    (offset, height - offset),  # we want to draw by setting up the
-                    (width - offset, height - offset),  # tuple of coordinates (tuples). Here it's triangle.
+                    (offset, height - offset, Qt.red, 20), # We can keep some meta information here
+                    (width // 2, offset),
+                    (width - offset, height - offset, Qt.green, 10),
+
                 ),
             'square':
                 (
@@ -122,6 +124,7 @@ class DrawAlgos(QWidget):
         # >--------------------- ADDA started here -------------------------------------------------------------<
         if not self.alg_flag:
             for i in range(len(points)):
+
                 dx = points[(i + 1) % len(points)][0] - points[i][0]  # Calculate dx, dy and watch out of being
                 dy = points[(i + 1) % len(points)][1] - points[i][1]  # out of range!
 
@@ -139,8 +142,13 @@ class DrawAlgos(QWidget):
                 else:
                     d = abs(dx / dy)
                     direction = 0
-                (x1, y1) = points[i]
-                (x2, y2) = points[(i + 1) % len(points)]
+                (x1, y1, *meta) = points[i]                     # Python's unpacking goes bruh
+                (x2, y2, *_) = points[(i + 1) % len(points)]    # really useful to handle meta-data
+                if(meta):
+                    pen = QPen(meta[0])
+                    pixel = meta[1]
+                    pen.setWidth(pixel)
+                    painter.setPen(pen)
 
                 while (True):
                     painter.drawPoint(round(x1), round(y1))
@@ -152,14 +160,22 @@ class DrawAlgos(QWidget):
                         y1 += increment * pixel * isNegative(dy)
                         x1 += d * pixel * isNegative(dx)
                     if (sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) < pixel):  # here we add one more pixel to the tail
-                        painter.drawPoint(round(x1), round(y1))  # so the line is not interrupted
+                        painter.drawPoint(round(x1), round(y1))          # so the line is not interrupted
                         break
         # >--------------------- ADDA end ----------------------------------------------------------------------<
 
         # >--------------------- Bresenham started here --------------------------------------------------------<
         else:
             for i in range(len(points)):
-                [(ax, ay), (bx, by)] = sorted([points[(i + 1) % len(points)], points[i]], key=lambda a: a[1])
+                (_, _, *meta) = points[i]
+                [(ax, ay, *_), (bx, by, *_)] = sorted([points[(i + 1) % len(points)], points[i]], key=lambda a: a[1])
+
+                if (meta):
+                    pen = QPen(meta[0])
+                    pixel = meta[1]
+                    pen.setWidth(pixel)
+                    painter.setPen(pen)
+
                 delta_x = bx - ax
                 delta_y = by - ay
                 if delta_x >= 0:
@@ -175,23 +191,23 @@ class DrawAlgos(QWidget):
                     t = 2 * delta_y
                     delta = 2 * delta_x
                 if delta_y >= delta_x:
-                    while abs(ay-by)>pixel:
-                        painter.drawPoint(ax, ay)
+                    while abs(ay-by) > pixel:
+                        painter.drawPoint(round(ax), round(ay))
                         ay += 1*pixel
                         d += t
                         if d > delta_y:
                             ax += dx*pixel
                             d -= delta
-                    painter.drawPoint(ax, ay)
+                    painter.drawPoint(round(ax), round(ay))
                 else:
                     while abs(ax-bx)>pixel:
-                        painter.drawPoint(ax, ay)
+                        painter.drawPoint(round(ax), round(ay))
                         ax += 1*dx*pixel
                         d += t
                         if d > delta_x:
                             ay += 1*pixel
                             d -= delta
-                    painter.drawPoint(ax, ay)
+                    painter.drawPoint(round(ax), round(ay))
 
         # >--------------------- Bresenham end here --------------------------------------------------------<
 
