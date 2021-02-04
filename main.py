@@ -4,16 +4,16 @@ from PyQt5.QtWidgets import QApplication, QWidget, QCheckBox
 from math import sqrt
 import time
 
-
 pixel = 20
 offset = 100
 
 
 def isNegative(num):
-    if num<0:
+    if num < 0:
         return -1
     else:
         return 1
+
 
 class DrawAlgos(QWidget):
 
@@ -26,7 +26,6 @@ class DrawAlgos(QWidget):
         self.initUI()
 
     def initUI(self):
-
 
         cb1 = QCheckBox('triangle', self)
         cb1.move(20, 20)
@@ -55,7 +54,6 @@ class DrawAlgos(QWidget):
         cb5.stateChanged.connect(self.changeAlg)
         self.cb_algs_list.append(cb5)
 
-
         self.setGeometry(300, 300, 600, 600)
         self.setWindowTitle('QCheckBox')
         self.show()
@@ -63,7 +61,7 @@ class DrawAlgos(QWidget):
     def changeShape(self, state):
         if state == Qt.Checked:
             for cb in self.cb_shapes_list:
-                if(cb != self.sender()):
+                if (cb != self.sender()):
                     cb.setChecked(False)
                 else:
                     cb.setChecked(True)
@@ -79,12 +77,11 @@ class DrawAlgos(QWidget):
                     cb.setChecked(True)
             if (self.sender().text() == "ADDA"):
                 self.alg_flag = 0
-            else: self.alg_flag = 1
+            else:
+                self.alg_flag = 1
             self.update()
 
-
-
-    def paintEvent(self, event):            # Overriding this method allows to carry redrawing while resizing
+    def paintEvent(self, event):  # Overriding this method allows to carry redrawing while resizing
         width = self.size().width()
         height = self.size().height()
         painter = QPainter(self)
@@ -94,28 +91,28 @@ class DrawAlgos(QWidget):
 
         shapes = {
             'triangle':
-                    (
-                        (width//2, offset),             # We can choose what kind of figure
-                        (offset, height-offset),        # we want to draw by setting up the
-                        (width-offset, height-offset),  # tuple of coordinates (tuples). Here it's triangle.
-                    ),
+                (
+                    (width // 2, offset),  # We can choose what kind of figure
+                    (offset, height - offset),  # we want to draw by setting up the
+                    (width - offset, height - offset),  # tuple of coordinates (tuples). Here it's triangle.
+                ),
             'square':
-                    (
-                        (offset, offset),
-                        (width-offset, offset),
-                        (width-offset, height-offset),
-                        (offset, height-offset),
-                    ),
+                (
+                    (offset, offset),
+                    (width - offset, offset),
+                    (width - offset, height - offset),
+                    (offset, height - offset),
+                ),
             'octagon':
                 (
-                    (offset+100, offset+100),
-                    (offset+100 + 50*width/200, offset+100),
-                    (offset+100 + 75*width/200, offset+100 + 25*width/200),
-                    (offset+100 + 75*width/200, offset+100 + 75*width/200),
-                    (offset+100 + 50*width/200, offset+100 + 100*width/200),
-                    (offset+100, offset+100 + 100*width/200),
-                    (offset+100-25*width/200, offset+100 + 75*width/200),
-                    (offset+100-25*width/200, offset+100+25*width/200),
+                    (offset + 100, offset + 100),
+                    (offset + 100 + 50 * width / 200, offset + 100),
+                    (offset + 100 + 75 * width / 200, offset + 100 + 25 * width / 200),
+                    (offset + 100 + 75 * width / 200, offset + 100 + 75 * width / 200),
+                    (offset + 100 + 50 * width / 200, offset + 100 + 100 * width / 200),
+                    (offset + 100, offset + 100 + 100 * width / 200),
+                    (offset + 100 - 25 * width / 200, offset + 100 + 75 * width / 200),
+                    (offset + 100 - 25 * width / 200, offset + 100 + 25 * width / 200),
                 )
 
         }
@@ -123,90 +120,80 @@ class DrawAlgos(QWidget):
         points = shapes[self.shape]
 
         # >--------------------- ADDA started here -------------------------------------------------------------<
-        if(not self.alg_flag):
+        if not self.alg_flag:
             for i in range(len(points)):
-                dx = points[(i + 1) % len(points)][0] - points[i][0]       # Calculate dx, dy and watch out of being
-                dy = points[(i + 1) % len(points)][1] - points[i][1]       # out of range!
+                dx = points[(i + 1) % len(points)][0] - points[i][0]  # Calculate dx, dy and watch out of being
+                dy = points[(i + 1) % len(points)][1] - points[i][1]  # out of range!
 
-                direction = 0                   # Direction flag: 0 is y and 1 is x
+                direction = 0  # Direction flag: 0 is y and 1 is x
                 d = 0
-                if(not dx):
+                if (not dx):
                     d = 0
                     direction = 0
-                if(not dy):
+                if (not dy):
                     d = 0
                     direction = 1
-                elif(abs(dx) >= abs(dy)):
-                    d = abs(dy/dx)
+                elif (abs(dx) >= abs(dy)):
+                    d = abs(dy / dx)
                     direction = 1
                 else:
-                    d = abs(dx/dy)
+                    d = abs(dx / dy)
                     direction = 0
                 (x1, y1) = points[i]
                 (x2, y2) = points[(i + 1) % len(points)]
 
-                while(True):
+                while (True):
                     painter.drawPoint(round(x1), round(y1))
                     increment = 1
-                    if(direction):
-                            x1 += increment*pixel*isNegative(dx)    # isNegative() result helps to carry direction
-                            y1 += d*pixel*isNegative(dy)
+                    if (direction):
+                        x1 += increment * pixel * isNegative(dx)  # isNegative() result helps to carry direction
+                        y1 += d * pixel * isNegative(dy)
                     else:
-                            y1 += increment*pixel*isNegative(dy)
-                            x1 += d*pixel*isNegative(dx)
-                    if(sqrt((x1-x2)**2 + (y1-y2)**2) < pixel):      # here we add one more pixel to the tail
-                        painter.drawPoint(round(x1), round(y1))     # so the line is not interrupted
+                        y1 += increment * pixel * isNegative(dy)
+                        x1 += d * pixel * isNegative(dx)
+                    if (sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) < pixel):  # here we add one more pixel to the tail
+                        painter.drawPoint(round(x1), round(y1))  # so the line is not interrupted
                         break
         # >--------------------- ADDA end ----------------------------------------------------------------------<
-
-
 
         # >--------------------- Bresenham started here --------------------------------------------------------<
         else:
             for i in range(len(points)):
                 [(ax, ay), (bx, by)] = sorted([points[(i + 1) % len(points)], points[i]], key=lambda a: a[1])
-                delta_x = bx-ax
-                delta_y = by-ay
-                if(delta_x >= 0):
+                delta_x = bx - ax
+                delta_y = by - ay
+                if delta_x >= 0:
                     dx = 1
                 else:
                     dx = -1
                     delta_x *= -1
                 d = 0
-                if(delta_y >= delta_x):
-                    t = 2*delta_x
-                    delta = 2*delta_y
+                if delta_y >= delta_x:
+                    t = 2 * delta_x
+                    delta = 2 * delta_y
                 else:
-                    t = 2*delta_y
-                    delta = 2*delta_x
-                if(delta_y >= delta_x):
-                    while(True):
+                    t = 2 * delta_y
+                    delta = 2 * delta_x
+                if delta_y >= delta_x:
+                    while abs(ay-by)>pixel:
                         painter.drawPoint(ax, ay)
                         ay += 1*pixel
-                        d += t*pixel
-                        if(d > delta_y):
+                        d += t
+                        if d > delta_y:
                             ax += dx*pixel
-                            d -= delta*pixel
-                        if (sqrt((ax - bx) ** 2 + (ay - by) ** 2) < pixel):  # here we add one more pixel to the tail
-                            painter.drawPoint(round(ax), round(ay))  # so the line is not interrupted
-                            break
-
-
+                            d -= delta
+                    painter.drawPoint(ax, ay)
                 else:
-                    while(True):
+                    while abs(ax-bx)>pixel:
                         painter.drawPoint(ax, ay)
-                        ax += dx*pixel
-                        d += t*pixel
-                        if (d > delta_x):
-                            ax += 1*pixel
-                            d -= delta*pixel
-                        if (sqrt((ax - bx) ** 2 + (ay - by) ** 2) < pixel):  # here we add one more pixel to the tail
-                            painter.drawPoint(round(ax), round(ay))  # so the line is not interrupted
-                            break
-                        print(sorted([points[(i + 1) % len(points)], points[i]], key=lambda a: a[1]))
-                        print(ax, ay, bx, by, dx)
-        # >--------------------- Bresenham started here --------------------------------------------------------<
+                        ax += 1*dx*pixel
+                        d += t
+                        if d > delta_x:
+                            ay += 1*pixel
+                            d -= delta
+                    painter.drawPoint(ax, ay)
 
+        # >--------------------- Bresenham end here --------------------------------------------------------<
 
 
 if __name__ == "__main__":
